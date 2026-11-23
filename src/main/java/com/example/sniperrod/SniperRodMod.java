@@ -242,7 +242,6 @@ public class SniperRodMod implements ModInitializer {
         s(23, K_MOB, "Mob type", Items.SPAWNER, Kind.MOB, 0, 0, 1, 0, null, "Click to cycle through every mob");
         // Row 3: arrow / wither
         s(27, K_DAMAGE, "Arrow damage", Items.IRON_SWORD, Kind.DOUBLE, 0, 100000, 1000, 100000, null, "Arrow damage");
-        s(28, K_PIERCE, "Arrow pierce", Items.CROSSBOW, Kind.INT, 0, 127, 1, 0, null, "Entities an arrow passes through");
         s(29, K_CRIT, "Arrow crit", Items.GOLDEN_SWORD, Kind.BOOL, 0, 0, 0, 1, null, "Critical arrows");
         s(30, K_CHARGED, "Blue skulls", Items.SOUL_SAND, Kind.BOOL, 0, 0, 0, 0, null, "Charged wither skulls");
     }
@@ -331,7 +330,7 @@ public class SniperRodMod implements ModInitializer {
 
         private void refresh(PlayerEntity player) {
             ItemStack rod = player.getMainHandStack();
-            if (!isRailgun(rod)) { player.closeHandledScreen(); return; }
+            if (!isRailgun(rod)) { closeScreen(player); return; }
             NbtCompound n = data(rod);
 
             ItemStack filler = new ItemStack(Items.GRAY_STAINED_GLASS_PANE);
@@ -355,14 +354,14 @@ public class SniperRodMod implements ModInitializer {
             }
             if (type != SlotActionType.PICKUP && type != SlotActionType.QUICK_MOVE) return;
 
-            if (slotIndex == 49) { player.closeHandledScreen(); return; }
+            if (slotIndex == 49) { closeScreen(player); return; }
 
             Setting st = null;
             for (Setting c : SETTINGS) if (c.slot() == slotIndex) { st = c; break; }
             if (st == null) return;
 
             ItemStack rod = player.getMainHandStack();
-            if (!isRailgun(rod)) { player.closeHandledScreen(); return; }
+            if (!isRailgun(rod)) { closeScreen(player); return; }
 
             int dir = (button == 0) ? 1 : -1;
             int mult = (type == SlotActionType.QUICK_MOVE) ? 10 : 1;
@@ -412,6 +411,10 @@ public class SniperRodMod implements ModInitializer {
         public boolean canUse(PlayerEntity player) {
             return isRailgun(player.getMainHandStack());
         }
+    }
+
+    private static void closeScreen(PlayerEntity player) {
+        if (player instanceof ServerPlayerEntity sp) sp.closeHandledScreen();
     }
 
     private static void openGui(ServerPlayerEntity player) {
@@ -634,7 +637,6 @@ public class SniperRodMod implements ModInitializer {
             set.then(doubleSetting("spread", 0.0, 60.0, K_SPREAD));
             set.then(doubleSetting("speed", 0.1, 20.0, K_SPEED));
             set.then(doubleSetting("damage", 0.0, 100000.0, K_DAMAGE));
-            set.then(intSetting("pierce", 0, 127, K_PIERCE));
             set.then(intSetting("cooldown", 0, 1200, K_COOLDOWN));
             set.then(boolSetting("crit", K_CRIT));
             set.then(boolSetting("charged", K_CHARGED));
@@ -786,8 +788,7 @@ public class SniperRodMod implements ModInitializer {
                             ArrowEntity arrow = new ArrowEntity(world, player, new ItemStack(Items.ARROW), null);
                             arrow.setDamage(damage);
                             arrow.setCritical(crit);
-                            arrow.setPierceLevel((byte) pierce);
-                            arrow.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
+                                            arrow.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
                             proj = arrow;
                         }
                     }
@@ -817,7 +818,7 @@ public class SniperRodMod implements ModInitializer {
                     sound, SoundCategory.PLAYERS, 1.0F, 0.8F);
 
             if (cooldown > 0) player.getItemCooldownManager().set(stack, cooldown);
-            if (uses > 0) stack.damage(1, player, LivingEntity.getSlotForHand(hand));
+            if (uses > 0) stack.damage(1, player, (hand == net.minecraft.util.Hand.MAIN_HAND ? net.minecraft.entity.EquipmentSlot.MAINHAND : net.minecraft.entity.EquipmentSlot.OFFHAND));
 
             return ActionResult.SUCCESS;
         });
