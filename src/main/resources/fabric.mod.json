@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "sniperrod",
+  "version": "${version}",
+  "name": "Sniper Rod (Railgun)",
+  "description": "OP-only railgun fishing rod: arrows, wither skulls, pearls, mobs, TNT and a single TNT. Sneak + right-click opens the settings GUI.",
+  "authors": ["You"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.example.sniperrod.SniperRodMod"]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.1",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
